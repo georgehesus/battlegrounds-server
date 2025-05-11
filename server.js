@@ -1,5 +1,9 @@
 // server.js
 
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
