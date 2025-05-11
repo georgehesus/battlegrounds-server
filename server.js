@@ -1,25 +1,23 @@
 // server.js
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
-
 const express = require('express');
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// Пример простого ИИ
+// === Пример простого ИИ ===
 function simpleAI(gameState) {
     let decision = { action: "wait" };
 
-    if (gameState.gold >= 3 && gameState.shop.length > 0) {
+    // Проверяем, есть ли магазин и золото
+    if (gameState.gold >= 3 && gameState.shop && gameState.shop.length > 0) {
+        const randomIndex = Math.floor(Math.random() * gameState.shop.length);
         decision = {
             action: "buy",
-            index: Math.floor(Math.random() * gameState.shop.length)
+            index: randomIndex,
+            name: gameState.shop[randomIndex].name
         };
     } else if (gameState.gold >= 1) {
         decision = { action: "rollShop" };
@@ -28,25 +26,33 @@ function simpleAI(gameState) {
     return decision;
 }
 
-// Хранилище состояния игр
-const games = {};
+// === Роуты ===
+
+// Корневой путь — просто приветствие
+app.get('/', (req, res) => {
+    res.send("Server is running!");
+});
 
 // Получение решения от ИИ
 app.post('/ai', (req, res) => {
     const gameState = req.body;
+
+    console.log("Получено состояние игры:", gameState);
+
     const decision = simpleAI(gameState);
     res.json(decision);
 });
 
-// Статистика сервера
+// Статистика активных игр
 app.get('/stats', (req, res) => {
+    const activeGames = Math.floor(Math.random() * 20); // пример статистики
     res.json({
-        activeGames: Object.keys(games).length
+        activeGames: activeGames
     });
 });
 
-// Запуск сервера
-const PORT = 3000;
+// === Запуск сервера ===
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`✅ Сервер запущен на порту ${PORT}`);
 });
